@@ -1,6 +1,6 @@
 //============================================================================
 // Name        : jane.cpp
-// Author      : Micha³ Marcinkowski
+// Author      : Michal Marcinkowski
 // Description : www.spoj.com/problems/JANE
 //============================================================================
 
