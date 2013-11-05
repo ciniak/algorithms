@@ -1,14 +1,19 @@
-CC      = g++
-CFLAGS	= -Wall -pedantic
+CXX		= g++
+CXXFLAGS= -g -Wall -pedantic
+LFLAGS	=
+OBJS	= NumbersTheoryTest.o NumbersTheory.o
+TARGET	= NumbersTheoryTest.exe
 
-NumbersTheoryTest.exe: NumbersTheoryTest.o NumbersTheory.o
-	$(CC) -o $@ $^
+$(TARGET) : $(OBJS)
+	$(CXX) $(LFLAGS) $^ -o $@
 
 NumbersTheoryTest.o: NumbersTheoryTest.cpp
-	$(CC) -c $(CFLAGS) $<
-	
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
 NumbersTheory.o: NumbersTheory.cpp
-	$(CC) -c $(CFLAGS) $<
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+.PHONY: clean
 
 clean:
-	del *.o NumbersTheoryTest.exe
+	del $(OBJS) $(TARGET)
