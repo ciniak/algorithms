@@ -1,5 +1,6 @@
 SPOJ - Sphere online judge (www.spoj.com)
 ====
+My user name: ciniak
 
 Problems solved on spoj. Folder name equals problem code, example below
 
