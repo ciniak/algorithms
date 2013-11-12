@@ -114,96 +114,139 @@ pair<int, pair<int, int> > extendedEuklidesNwd(int a, int b) {
 	return make_pair(nwd, make_pair(xM, yM));
 }
 
-int a[101], x[101];
+int n, a[101];
+long x[101];
 pair<int, pair<int, int> > nwds[100];
 
 bool go(int k, int last) {
-	int tmp, mul, s;
+	long tmp, mul, s;
+	int reducedA, reducedB, i, div, redB;
 	bool one = false, m = true;
 	if (k > 0) {
-		mul = x[k] / (nwds[k - 1].first / last);
-		if ((x[k] % (nwds[k - 1].first / last)) != 0) {
+		div = nwds[k - 1].first / last;
+		mul = x[k] / div;
+		if ((x[k] % div) != 0) {
 			mul = x[k];
 			m = false;
 		}
-		x[k - 1] = nwds[k - 1].second.first * mul;
-		x[k] = nwds[k - 1].second.second * mul;
-		if (k != 1) {
-			s = ((-1) * x[k - 1]) / (a[k] / nwds[k - 1].first);
-			x[k - 1] += (a[k] / nwds[k - 1].first) * s;
-			x[k] -= (nwds[k - 2].first / nwds[k - 1].first) * s;
+		x[k - 1] = nwds[k - 1].second.first;
+		x[k] = nwds[k - 1].second.second;
+		if (k > 1) {
+			reducedA = a[k] / nwds[k - 1].first;
+			reducedB = nwds[k - 2].first / nwds[k - 1].first;
 			if (x[k - 1] <= 0) {
+				s = ((-1) * x[k - 1]) / reducedA;
+				x[k - 1] += reducedA * s;
+				x[k] -= reducedB * s;
 				one = true;
-				while ((x[k - 1] <= 0) || x[k] <= 0) {
-					x[k - 1] += a[k] / nwds[k - 1].first;
-					x[k] -= (nwds[k - 2].first / nwds[k - 1].first);
-					if (x[k] <= 0) {
+				while ((x[k - 1] < 0) || x[k] < 0) {
+					x[k - 1] += reducedA;
+					x[k] -= reducedB;
+					if (x[k] < 0) {
 						return false;
 					}
+				}
+				x[k - 1] *= mul;
+				x[k] += mul;
+			} else {
+				s = ((-1) * x[k]) / reducedB;
+				x[k - 1] += reducedA * s;
+				x[k] -= reducedB * s;
+				printf("%ld, %ld\n", x[k - 1], x[k]);
+				while ((x[k - 1] < 0) || x[k] < 0) {
+					x[k - 1] -= reducedA;
+					x[k] += reducedB;
+					if (x[k - 1] < 0) {
+						return false;
+					}
+				}
+				x[k - 1] *= mul;
+				x[k] += mul;
+			}
+			if (x[k - 1] != 0) {
+				if (one) {
+					tmp = x[k - 1];
+					while (!go(k - 1, nwds[k - 1].first)) {
+						tmp += reducedA;
+						x[k - 1] = tmp;
+						x[k] -= reducedB;
+						if (x[k] < 0) {
+							return false;
+						}
+					}
+				} else {
+					tmp = x[k - 1];
+					while (!go(k - 1, nwds[k - 1].first)) {
+						tmp -= reducedA;
+						x[k - 1] = tmp;
+						x[k] += reducedB;
+						if (x[k - 1] < 0) {
+							return false;
+						}
+					}
+				}
+				if ((x[k - 1] >= a[n]) || (x[k] >= a[n])) {
+					return false;
+				}
+				if (m) {
+					x[k] *= div;
+					x[k - 1] *= div;
+					if ((x[k - 1] >= a[n]) || (x[k] >= a[n])) {
+						return false;
+					}
+					for (i = k - 2; i > 0; i--) {
+						x[i] *= div;
+					}
+					x[0] *= div;
 				}
 			} else {
-				while ((x[k - 1] <= 0) || x[k] <= 0) {
-					x[k - 1] -= a[k] / nwds[k - 1].first;
-					x[k] += (nwds[k - 2].first / nwds[k - 1].first);
-					if (x[k - 1] <= 0) {
-						return false;
-					}
+				if (m) {
+					x[k] *= div;
 				}
-			}
-			if (one) {
-				tmp = x[k - 1];
-				while (!go(k - 1, nwds[k - 1].first)) {
-					tmp += a[k] / nwds[k - 1].first;
-					x[k - 1] = tmp;
-					x[k] -= (nwds[k - 2].first / nwds[k - 1].first);
-					if (x[k] <= 0) {
-						return false;
-					}
+				if (x[k] >= a[n]) {
+					return false;
 				}
-			} else {
-				tmp = x[k - 1];
-				while (!go(k - 1, nwds[k - 1].first)) {
-					tmp -= a[k] / nwds[k - 1].first;
-					x[k - 1] = tmp;
-					x[k] += (nwds[k - 2].first / nwds[k - 1].first);
-					if (x[k - 1] <= 0) {
-						return false;
-					}
+				for (i = k - 2; i >= 0; i--) {
+					x[i] = 0;
 				}
-			}
-			if (m) {
-				for (int i = k; i > 0; i--) {
-					x[i] *= nwds[k - 1].first / last;
-				}
-				x[0] *= nwds[k - 1].first / last;
 			}
 		} else {
-			if (x[k - 1] <= 0) {
-				s = ((-1) * x[k - 1]) / (a[k] / nwds[k - 1].first);
-				x[k - 1] += (a[k] / nwds[k - 1].first) * s;
-				x[k] -= (a[k - 1] / nwds[k - 1].first) * s;
-				while ((x[k - 1] <= 0) || x[k] <= 0) {
-					x[k - 1] += a[k] / nwds[k - 1].first;
-					x[k] -= (a[k - 1] / nwds[k - 1].first);
-					if (x[k] <= 0) {
+			reducedA = a[k] / nwds[k - 1].first;
+			redB = (a[k - 1] / nwds[k - 1].first);
+			if (x[k - 1] < 0) {
+				s = ((-1) * x[k - 1]) / reducedA;
+				x[k - 1] += reducedA * s;
+				x[k] -= redB * s;
+				while ((x[k - 1] < 0) || x[k] < 0) {
+					x[k - 1] += reducedA;
+					x[k] -= redB;
+					if (x[k] < 0) {
 						return false;
 					}
 				}
-			} else if (x[k] <= 0) {
-				s = ((-1) * x[k]) / (a[k - 1] / nwds[k - 1].first);
-				x[k - 1] -= (a[k] / nwds[k - 1].first) * s;
-				x[k] += (a[k - 1] / nwds[k - 1].first) * s;
-				while ((x[k - 1] <= 0) || x[k] <= 0) {
-					x[k - 1] -= a[k] / nwds[k - 1].first;
-					x[k] += (a[k - 1] / nwds[k - 1].first);
-					if (x[k - 1] <= 0) {
+			} else if (x[k] < 0) {
+				s = ((-1) * x[k]) / redB;
+				x[k - 1] -= reducedA * s;
+				x[k] += redB * s;
+				while ((x[k - 1] < 0) || x[k] < 0) {
+					x[k - 1] -= reducedA;
+					x[k] += redB;
+					if (x[k - 1] < 0) {
 						return false;
 					}
 				}
 			}
+			x[k - 1] *= mul;
+			x[k] += mul;
+			if ((x[k - 1] >= a[n]) || (x[k] >= a[n])) {
+				return false;
+			}
 			if (m) {
-				x[k - 1] *= nwds[k - 1].first / last;
-				x[k] *= nwds[k - 1].first / last;
+				x[k - 1] *= div;
+				x[k] *= div;
+				if ((x[k - 1] >= a[n]) || (x[k] >= a[n])) {
+					return false;
+				}
 			}
 		}
 	}
@@ -211,7 +254,8 @@ bool go(int k, int last) {
 }
 
 int main() {
-	int numberOfCases, n, i, b, m, s, tmp;
+	int numberOfCases, i, b, s, reduced;
+	long tmp;
 	scanf("%d", &numberOfCases);
 	while (numberOfCases--) {
 		scanf("%d", &n);
@@ -230,34 +274,30 @@ int main() {
 		} else {
 			nwds[n - 1] = extendedEuklidesNwd(a[n - 1], a[n]);
 		}
-		//calculate a's
+
 		if ((b % nwds[n - 1].first) == 0) {
-			// base value (coefficient first) [* search value/nwds[i].first + (a[i + 1] / nwds[i + 1]) = x[i]
-
-			//in this case x = 0 mod y (no solution)
-
 			x[n - 1] = nwds[n - 1].second.first * (b / nwds[n - 1].first);
 
-			if (x[n - 1] < 0) {
-				s = ((-1) * x[n - 1]) / (a[n] / nwds[n - 1].first);
-				x[n - 1] += (a[n] / nwds[n - 1].first) * s;
-				while (x[n - 1] < 0) {
-					x[n - 1] += a[n] / nwds[n - 1].first;
-				}
+			reduced = a[n] / nwds[n - 1].first;
+			s = ((-1) * x[n - 1]) / reduced;
+			x[n - 1] += reduced * s;
+			while (x[n - 1] < 0) {
+				x[n - 1] += reduced;
 			}
 
 			tmp = x[n - 1];
 			while (!go(n - 1, nwds[n - 1].first)) {
-				tmp += a[n] / nwds[n - 1].first;
+				tmp += reduced;
 				x[n - 1] = tmp;
+				if (x[n - 1] > a[n]) {
+					printf("err");
+					break;
+				}
 			}
-			int sum = 0;
 			for (i = 0; i < n; i++) {
-				sum += x[i] * a[i];
-				printf("%d ", x[i]);
+				printf("%ld ", x[i]);
 			}
 			printf("\n");
-			printf("result = %d (%d)\n", sum % a[n], b);
 		} else {
 			printf("NO\n");
 		}
