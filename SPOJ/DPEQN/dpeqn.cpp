@@ -118,10 +118,9 @@ int a[101], x[101];
 pair<int, pair<int, int> > nwds[100];
 
 bool go(int k, int last) {
-	int tmp, mul;
+	int tmp, mul, s;
 	bool one = false, m = true;
 	if (k > 0) {
-		printf("k > 0 (%d)\n", k);
 		mul = x[k] / (nwds[k - 1].first / last);
 		if ((x[k] % (nwds[k - 1].first / last)) != 0) {
 			mul = x[k];
@@ -129,42 +128,35 @@ bool go(int k, int last) {
 		}
 		x[k - 1] = nwds[k - 1].second.first * mul;
 		x[k] = nwds[k - 1].second.second * mul;
-		printf("k -1 = %d (%d), k = %d (%d)\n %d, %d, %d\n", x[k - 1], nwds[k - 1].second.first, x[k], nwds[k - 1].second.second, x[k],
-				nwds[k - 1].first, last);
 		if (k != 1) {
-			printf("k != 1\n");
+			s = ((-1) * x[k - 1]) / (a[k] / nwds[k - 1].first);
+			x[k - 1] += (a[k] / nwds[k - 1].first) * s;
+			x[k] -= (nwds[k - 2].first / nwds[k - 1].first) * s;
 			if (x[k - 1] <= 0) {
-				printf("x[k - 1] <= 0 (%d)\n", x[k - 1]);
 				one = true;
-				while ((x[k - 1] <= 0) || x[k] < 0) {
-					printf("while ((x[k - 1] <= 0) || x[k] < 0) (%d, %d)\n", x[k - 1], x[k]);
+				while ((x[k - 1] <= 0) || x[k] <= 0) {
 					x[k - 1] += a[k] / nwds[k - 1].first;
 					x[k] -= (nwds[k - 2].first / nwds[k - 1].first);
-					if (x[k] < 0) {
-						printf("return false\n");
+					if (x[k] <= 0) {
 						return false;
 					}
 				}
 			} else {
-				printf("x[k - 1] > 0 (%d)\n", x[k - 1]);
-				while ((x[k - 1] <= 0) || x[k] < 0) {
-					printf("while ((x[k - 1] <= 0) || x[k] < 0) (%d, %d)\n", x[k - 1], x[k]);
+				while ((x[k - 1] <= 0) || x[k] <= 0) {
 					x[k - 1] -= a[k] / nwds[k - 1].first;
 					x[k] += (nwds[k - 2].first / nwds[k - 1].first);
 					if (x[k - 1] <= 0) {
-						printf("return false\n");
 						return false;
 					}
 				}
 			}
 			if (one) {
-				printf("one = true\n");
 				tmp = x[k - 1];
 				while (!go(k - 1, nwds[k - 1].first)) {
 					tmp += a[k] / nwds[k - 1].first;
 					x[k - 1] = tmp;
 					x[k] -= (nwds[k - 2].first / nwds[k - 1].first);
-					if (x[k] < 0) {
+					if (x[k] <= 0) {
 						return false;
 					}
 				}
@@ -181,31 +173,34 @@ bool go(int k, int last) {
 			}
 			if (m) {
 				for (int i = k; i > 0; i--) {
-					x[i] *= nwds[i - 1].first / last;
+					x[i] *= nwds[k - 1].first / last;
 				}
-				x[0] *= nwds[1].first / last;
+				x[0] *= nwds[k - 1].first / last;
 			}
 		} else {
-			printf("k == 1\n");
-			if (x[k - 1] < 0) {
-				printf("x[k - 1] < 0 (%d)\n", x[k - 1]);
-				while ((x[k - 1] < 0) || x[k] < 0) {
-					printf("x[k - 1] < 0) || x[k] < 0 (%d, %d)\n", x[k - 1], x[k]);
+			printf("x[k -1] = %d, x[k] = %d\n", x[k-1], x[k]);
+			if (x[k - 1] <= 0) {
+				s = ((-1) * x[k - 1]) / (a[k] / nwds[k - 1].first);
+				x[k - 1] += (a[k] / nwds[k - 1].first) * s;
+				x[k] -= (a[k - 1] / nwds[k - 1].first) * s;
+				printf("S x[k -1] = %d, x[k] = %d\n", x[k-1], x[k]);
+				while ((x[k - 1] <= 0) || x[k] <= 0) {
 					x[k - 1] += a[k] / nwds[k - 1].first;
 					x[k] -= (a[k - 1] / nwds[k - 1].first);
-					if (x[k] < 0) {
+					printf("W x[k -1] = %d, x[k] = %d\n", x[k-1], x[k]);
+					if (x[k] <= 0) {
 						printf("return false\n");
 						return false;
 					}
 				}
-			} else if (x[k] < 0) {
-				printf("x[k - 1] < 0 (%d)\n", x[k - 1]);
-				while ((x[k - 1] < 0) || x[k] < 0) {
-					printf("x[k - 1] < 0) || x[k] < 0 (%d, %d)\n", x[k - 1], x[k]);
+			} else if (x[k] <= 0) {
+				s = ((-1) * x[k]) / (a[k - 1] / nwds[k - 1].first);
+				x[k - 1] -= (a[k] / nwds[k - 1].first) * s;
+				x[k] += (a[k - 1] / nwds[k - 1].first) * s;
+				while ((x[k - 1] <= 0) || x[k] <= 0) {
 					x[k - 1] -= a[k] / nwds[k - 1].first;
 					x[k] += (a[k - 1] / nwds[k - 1].first);
-					if (x[k - 1] < 0) {
-						printf("return false\n");
+					if (x[k - 1] <= 0) {
 						return false;
 					}
 				}
@@ -220,7 +215,7 @@ bool go(int k, int last) {
 }
 
 int main() {
-	int numberOfCases, n, i, b, m;
+	int numberOfCases, n, i, b, m, s;
 	scanf("%d", &numberOfCases);
 	while (numberOfCases--) {
 		scanf("%d", &n);
@@ -241,40 +236,31 @@ int main() {
 		}
 		//calculate a's
 		if ((b % nwds[n - 1].first) == 0) {
-			bool bad = false;
 			// base value (coefficient first) [* search value/nwds[i].first + (a[i + 1] / nwds[i + 1]) = x[i]
 
 			//in this case x = 0 mod y (no solution)
 
-			printf("x1 = %d, x2 = %d\n", nwds[n - 1].second.first, nwds[n - 1].second.second);
 			x[n - 1] = nwds[n - 1].second.first * (b / nwds[n - 1].first);
-			printf("nwd = %d, a[n] = %d\n", nwds[n - 1].first, a[n]);
-			printf("x = %d\n", x[n - 1]);
+
+			if (x[n - 1] < 0) {
+				s = ((-1) * x[n - 1]) / (a[n] / nwds[n - 1].first);
+				x[n - 1] += (a[n] / nwds[n - 1].first) * s;
+			}
 			while (x[n - 1] <= 0) {
 				x[n - 1] += a[n] / nwds[n - 1].first;
-				printf("x = %d\n", x[n - 1]);
 			}
-			printf("N (%d, %d)\n", nwds[n - 1].first, a[n]);
 			int tmp = x[n - 1];
-			printf("tmp = %d\n", tmp);
 			while (!go(n - 1, nwds[n - 1].first)) {
-				printf("x[n - 1] = %d --> ", x[n - 1]);
 				tmp += a[n] / nwds[n - 1].first;
 				x[n - 1] = tmp;
-				printf("x[n - 1] = %d\n", x[n - 1]);
-				getchar();
 			}
-			for (i = 0; i < n; i++) {
-				printf("x[%d] = %d ", i, x[i]);
-			}
-			printf("\n");
 			int sum = 0;
 			for (i = 0; i < n; i++) {
-				sum += a[i] * x[i];
+				sum += x[i] * a[i];
+				printf("%d ", x[i]);
 			}
-
-			printf("\nresult = %d (%d)\n", sum % a[n], b);
-
+			printf("\n");
+			printf("result = %d (%d)\n", sum % a[n], b);
 		} else {
 			printf("NO\n");
 		}
