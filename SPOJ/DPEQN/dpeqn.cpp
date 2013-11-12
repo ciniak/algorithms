@@ -178,18 +178,14 @@ bool go(int k, int last) {
 				x[0] *= nwds[k - 1].first / last;
 			}
 		} else {
-			printf("x[k -1] = %d, x[k] = %d\n", x[k-1], x[k]);
 			if (x[k - 1] <= 0) {
 				s = ((-1) * x[k - 1]) / (a[k] / nwds[k - 1].first);
 				x[k - 1] += (a[k] / nwds[k - 1].first) * s;
 				x[k] -= (a[k - 1] / nwds[k - 1].first) * s;
-				printf("S x[k -1] = %d, x[k] = %d\n", x[k-1], x[k]);
 				while ((x[k - 1] <= 0) || x[k] <= 0) {
 					x[k - 1] += a[k] / nwds[k - 1].first;
 					x[k] -= (a[k - 1] / nwds[k - 1].first);
-					printf("W x[k -1] = %d, x[k] = %d\n", x[k-1], x[k]);
 					if (x[k] <= 0) {
-						printf("return false\n");
 						return false;
 					}
 				}
@@ -215,7 +211,7 @@ bool go(int k, int last) {
 }
 
 int main() {
-	int numberOfCases, n, i, b, m, s;
+	int numberOfCases, n, i, b, m, s, tmp;
 	scanf("%d", &numberOfCases);
 	while (numberOfCases--) {
 		scanf("%d", &n);
@@ -245,11 +241,12 @@ int main() {
 			if (x[n - 1] < 0) {
 				s = ((-1) * x[n - 1]) / (a[n] / nwds[n - 1].first);
 				x[n - 1] += (a[n] / nwds[n - 1].first) * s;
+				while (x[n - 1] < 0) {
+					x[n - 1] += a[n] / nwds[n - 1].first;
+				}
 			}
-			while (x[n - 1] <= 0) {
-				x[n - 1] += a[n] / nwds[n - 1].first;
-			}
-			int tmp = x[n - 1];
+
+			tmp = x[n - 1];
 			while (!go(n - 1, nwds[n - 1].first)) {
 				tmp += a[n] / nwds[n - 1].first;
 				x[n - 1] = tmp;
