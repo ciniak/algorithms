@@ -6,6 +6,7 @@
 
 #include <stdexcept>
 #include <cstdio>
+#include <cstring>
 #include <utility>
 
 using namespace std;
@@ -114,150 +115,16 @@ pair<int, pair<int, int> > extendedEuklidesNwd(int a, int b) {
 	return make_pair(nwd, make_pair(xM, yM));
 }
 
-int n, a[101];
+int n, a[101], ma[101];
 long x[101];
 pair<int, pair<int, int> > nwds[100];
 
-bool go(int k, int last) {
-	long tmp, mul, s;
-	int reducedA, reducedB, i, div, redB;
-	bool one = false, m = true;
-	if (k > 0) {
-		div = nwds[k - 1].first / last;
-		mul = x[k] / div;
-		if ((x[k] % div) != 0) {
-			mul = x[k];
-			m = false;
-		}
-		x[k - 1] = nwds[k - 1].second.first;
-		x[k] = nwds[k - 1].second.second;
-		if (k > 1) {
-			reducedA = a[k] / nwds[k - 1].first;
-			reducedB = nwds[k - 2].first / nwds[k - 1].first;
-			if (x[k - 1] <= 0) {
-				s = ((-1) * x[k - 1]) / reducedA;
-				x[k - 1] += reducedA * s;
-				x[k] -= reducedB * s;
-				one = true;
-				while ((x[k - 1] < 0) || x[k] < 0) {
-					x[k - 1] += reducedA;
-					x[k] -= reducedB;
-					if (x[k] < 0) {
-						return false;
-					}
-				}
-				x[k - 1] *= mul;
-				x[k] += mul;
-			} else {
-				s = ((-1) * x[k]) / reducedB;
-				x[k - 1] += reducedA * s;
-				x[k] -= reducedB * s;
-				printf("%ld, %ld\n", x[k - 1], x[k]);
-				while ((x[k - 1] < 0) || x[k] < 0) {
-					x[k - 1] -= reducedA;
-					x[k] += reducedB;
-					if (x[k - 1] < 0) {
-						return false;
-					}
-				}
-				x[k - 1] *= mul;
-				x[k] += mul;
-			}
-			if (x[k - 1] != 0) {
-				if (one) {
-					tmp = x[k - 1];
-					while (!go(k - 1, nwds[k - 1].first)) {
-						tmp += reducedA;
-						x[k - 1] = tmp;
-						x[k] -= reducedB;
-						if (x[k] < 0) {
-							return false;
-						}
-					}
-				} else {
-					tmp = x[k - 1];
-					while (!go(k - 1, nwds[k - 1].first)) {
-						tmp -= reducedA;
-						x[k - 1] = tmp;
-						x[k] += reducedB;
-						if (x[k - 1] < 0) {
-							return false;
-						}
-					}
-				}
-				if ((x[k - 1] >= a[n]) || (x[k] >= a[n])) {
-					return false;
-				}
-				if (m) {
-					x[k] *= div;
-					x[k - 1] *= div;
-					if ((x[k - 1] >= a[n]) || (x[k] >= a[n])) {
-						return false;
-					}
-					for (i = k - 2; i > 0; i--) {
-						x[i] *= div;
-					}
-					x[0] *= div;
-				}
-			} else {
-				if (m) {
-					x[k] *= div;
-				}
-				if (x[k] >= a[n]) {
-					return false;
-				}
-				for (i = k - 2; i >= 0; i--) {
-					x[i] = 0;
-				}
-			}
-		} else {
-			reducedA = a[k] / nwds[k - 1].first;
-			redB = (a[k - 1] / nwds[k - 1].first);
-			if (x[k - 1] < 0) {
-				s = ((-1) * x[k - 1]) / reducedA;
-				x[k - 1] += reducedA * s;
-				x[k] -= redB * s;
-				while ((x[k - 1] < 0) || x[k] < 0) {
-					x[k - 1] += reducedA;
-					x[k] -= redB;
-					if (x[k] < 0) {
-						return false;
-					}
-				}
-			} else if (x[k] < 0) {
-				s = ((-1) * x[k]) / redB;
-				x[k - 1] -= reducedA * s;
-				x[k] += redB * s;
-				while ((x[k - 1] < 0) || x[k] < 0) {
-					x[k - 1] -= reducedA;
-					x[k] += redB;
-					if (x[k - 1] < 0) {
-						return false;
-					}
-				}
-			}
-			x[k - 1] *= mul;
-			x[k] += mul;
-			if ((x[k - 1] >= a[n]) || (x[k] >= a[n])) {
-				return false;
-			}
-			if (m) {
-				x[k - 1] *= div;
-				x[k] *= div;
-				if ((x[k - 1] >= a[n]) || (x[k] >= a[n])) {
-					return false;
-				}
-			}
-		}
-	}
-	return true;
-}
-
 int main() {
-	int numberOfCases, i, b, s, reduced;
+	int numberOfCases, i, b, s, reduced, k, rest;
 	long tmp;
 	scanf("%d", &numberOfCases);
 	while (numberOfCases--) {
+		memset(x, 0, sizeof(x));
 		scanf("%d", &n);
 		for (i = 0; i < n; i++) {
 			scanf("%d", &a[i]);
@@ -266,34 +133,68 @@ int main() {
 		scanf("%d %d", &b, &a[n]);
 		//calculate nwd and coefficients
 		if (n > 1) {
-			nwds[0] = extendedEuklidesNwd(a[0], a[1]);
+			ma[0] = a[0] % a[n];
+			ma[1] = a[1] % a[n];
+			nwds[0] = extendedEuklidesNwd(ma[0], ma[1]);
 			for (i = 2; i < n; i++) {
-				nwds[i - 1] = extendedEuklidesNwd(nwds[i - 2].first, a[i]);
+				ma[i] = a[i] % a[n];
+				nwds[i - 1] = extendedEuklidesNwd(nwds[i - 2].first, ma[i]);
 			}
 			nwds[n - 1] = extendedEuklidesNwd(nwds[i - 2].first, a[n]);
 		} else {
-			nwds[n - 1] = extendedEuklidesNwd(a[n - 1], a[n]);
+			ma[n - 1] = a[n - 1] % a[n];
+			nwds[n - 1] = extendedEuklidesNwd(ma[n - 1], a[n]);
 		}
-
+		b %= a[n];
 		if ((b % nwds[n - 1].first) == 0) {
-			x[n - 1] = nwds[n - 1].second.first * (b / nwds[n - 1].first);
 
-			reduced = a[n] / nwds[n - 1].first;
-			s = ((-1) * x[n - 1]) / reduced;
-			x[n - 1] += reduced * s;
-			while (x[n - 1] < 0) {
-				x[n - 1] += reduced;
-			}
+			k = n - 1;
+			rest = b;
 
-			tmp = x[n - 1];
-			while (!go(n - 1, nwds[n - 1].first)) {
-				tmp += reduced;
-				x[n - 1] = tmp;
-				if (x[n - 1] > a[n]) {
-					printf("err");
-					break;
+			while (rest != 0) {
+				if (k > 1) {
+					if (rest % ma[k] == 0) {
+						x[k] += rest / ma[k];
+						break;
+					} else if (rest % nwds[k - 2].first == 0) {
+						k--;
+						continue;
+					} else {
+						rest -= ma[k];
+						x[k]++;
+						if (rest < 0) {
+							rest += a[n];
+						}
+					}
+				} else if (k == 1) {
+					if (rest % ma[k] == 0) {
+						x[k] += rest / ma[k];
+						break;
+					} else if (rest % ma[k - 1] == 0) {
+						x[k - 1] += rest / ma[k - 1];
+						break;
+					} else {
+						rest -= ma[k];
+						x[k]++;
+						if (rest < 0) {
+							rest += a[n];
+						}
+					}
+				} else if (k == 0) {
+					if (rest % ma[k] == 0) {
+						x[k] += rest / ma[k];
+						break;
+					} else {
+						rest -= ma[k];
+						x[k]++;
+						if (rest < 0) {
+							rest += a[n];
+						}
+					}
 				}
+
 			}
+
 			for (i = 0; i < n; i++) {
 				printf("%ld ", x[i]);
 			}
