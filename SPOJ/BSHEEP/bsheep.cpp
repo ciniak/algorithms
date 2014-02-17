@@ -135,7 +135,8 @@ int calcDet(int p1, int p2, int p3) {
 double calcLength(int i1, int i2) {
 	int xDif = points[i1].x - points[i2].x;
 	int yDif = points[i1].y - points[i2].y;
-	return hypot(xDif, yDif);
+	int sum = (xDif * xDif) + (yDif * yDif);
+	return sqrt(sum);
 }
 
 double calcFence(vector<int> v, int size) {
