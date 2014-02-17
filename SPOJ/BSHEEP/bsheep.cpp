@@ -47,6 +47,10 @@ public:
 		return stack;
 	}
 
+	void clear() {
+		size = 0;
+	}
+
 	void print() {
 		for (unsigned i = 0; i < size; i++) {
 			printf("%d ", stack[i] + 1);
@@ -91,30 +95,30 @@ struct sheep {
 
 }typedef sheep;
 
-sheep sheeps[MAX];
+sheep points[MAX];
 
 double angles[MAX];
 
-int numberOfSheeps;
+int numberOfPoints;
 
 struct compareSheeps {
 	bool operator ()(const int &p1, const int &p2) {
-		if (sheeps[p1].alpha < sheeps[p2].alpha) {
+		if (points[p1].alpha < points[p2].alpha) {
 			return true;
 		}
-		if (sheeps[p1].alpha > sheeps[p2].alpha) {
+		if (points[p1].alpha > points[p2].alpha) {
 			return false;
 		}
-		if (sheeps[p1].x < sheeps[p2].x) {
+		if (points[p1].x < points[p2].x) {
 			return true;
 		}
-		if (sheeps[p1].x > sheeps[p2].x) {
+		if (points[p1].x > points[p2].x) {
 			return false;
 		}
-		if (sheeps[p1].y < sheeps[p2].y) {
+		if (points[p1].y < points[p2].y) {
 			return true;
 		}
-		if (sheeps[p1].y > sheeps[p2].y) {
+		if (points[p1].y > points[p2].y) {
 			return false;
 		}
 		return false;
@@ -124,15 +128,14 @@ struct compareSheeps {
 typedef set<int, compareSheeps> sheepsSet;
 
 int calcDet(int p1, int p2, int p3) {
-	return (sheeps[p1].x * sheeps[p2].y + sheeps[p2].x * sheeps[p3].y + sheeps[p3].x * sheeps[p1].y - sheeps[p2].y * sheeps[p3].x
-			- sheeps[p3].y * sheeps[p1].x - sheeps[p1].y * sheeps[p2].x);
+	return (points[p1].x * points[p2].y + points[p2].x * points[p3].y + points[p3].x * points[p1].y - points[p2].y * points[p3].x
+			- points[p3].y * points[p1].x - points[p1].y * points[p2].x);
 }
 
 double calcLength(int i1, int i2) {
-	int xDif = sheeps[i1].x - sheeps[i2].x;
-	int yDif = sheeps[i1].y - sheeps[i2].y;
-	int sum = (xDif * xDif) + (yDif * yDif);
-	return sqrt(sum);
+	int xDif = points[i1].x - points[i2].x;
+	int yDif = points[i1].y - points[i2].y;
+	return hypot(xDif, yDif);
 }
 
 double calcFence(vector<int> v, int size) {
@@ -152,39 +155,41 @@ double calcFence(vector<int> v, int size) {
 }
 
 int main() {
-	int numberOfCases, i;
+	int numberOfCases, i, rootX, rootY,	p1, p2, p3;
 	sheepsSet sortedSheeps;
+	MyStack<int> stack;
+	sheepsSet::iterator it;
 	scanf("%d", &numberOfCases);
 	while (numberOfCases--) {
 		sortedSheeps.clear();
-		scanf("%d", &numberOfSheeps);
+		stack.clear();
+		scanf("%d", &numberOfPoints);
 		int firstSheep = 0;
-		for (i = 0; i < numberOfSheeps; i++) {
-			scanf("%d %d", &sheeps[i].x, &sheeps[i].y);
-			sheeps[i].number = i + 1;
-			if ((sheeps[i].y < sheeps[firstSheep].y)) {
+		for (i = 0; i < numberOfPoints; i++) {
+			scanf("%d %d", &points[i].x, &points[i].y);
+			points[i].number = i + 1;
+			if ((points[i].y < points[firstSheep].y)) {
 				firstSheep = i;
-			} else if (sheeps[i].y == sheeps[firstSheep].y) {
-				if (sheeps[i].x < sheeps[firstSheep].x) {
+			} else if (points[i].y == points[firstSheep].y) {
+				if (points[i].x < points[firstSheep].x) {
 					firstSheep = i;
 				}
 			}
 		}
 
-		int rootX = sheeps[firstSheep].x;
-		int rootY = sheeps[firstSheep].y;
-		sheeps[firstSheep].alpha = 0;
+		rootX = points[firstSheep].x;
+		rootY = points[firstSheep].y;
+		points[firstSheep].alpha = 0;
 		sortedSheeps.insert(firstSheep);
-		for (i = 0; i < numberOfSheeps; i++) {
+		for (i = 0; i < numberOfPoints; i++) {
 			if (i == firstSheep) {
 				continue;
 			}
-			sheeps[i].calcAlpha(rootX, rootY);
+			points[i].calcAlpha(rootX, rootY);
 			sortedSheeps.insert(i);
 		}
 
-		MyStack<int> stack;
-		sheepsSet::iterator it = sortedSheeps.begin();
+		it = sortedSheeps.begin();
 		stack.push((*it));
 		++it;
 		if (it != sortedSheeps.end()) {
@@ -201,7 +206,6 @@ int main() {
 			}
 		}
 		while (it != sortedSheeps.end()) {
-			int p1, p2, p3;
 			p1 = stack.getPreLast();
 			p2 = stack.getLast();
 			p3 = (*it);
