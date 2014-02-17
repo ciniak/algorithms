@@ -79,16 +79,6 @@ public:
 		return *this;
 	}
 
-/*	void print() {
-		std::cout << "firstValueIndex = " << firstValueIndex << " lastValueIndex = " << lastValueIndex << " size = " << size
-				<< " insertIndex = " << insertIndex + "\n";
-		std::cout << "list: ";
-		for (size_t i = 0; i < maxSize; i++) {
-			std::cout << list[i] << " ";
-		}
-		std::cout << "\n";
-	}*/
-
 	~ConstantSizeList() {
 		delete[] list;
 	}
